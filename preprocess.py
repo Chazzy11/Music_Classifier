@@ -3,14 +3,14 @@ import librosa # audio processing library
 import math
 import json
 
-DATASET_PATH = "Data/genres_original"
+DATASET_PATH = "../Data/genres_original"
 JSON_PATH = "data.json"
 
 SAMPLE_RATE = 22050
 DURATION = 30 # measured in seconds
 SAMPLES_PER_TRACK = SAMPLE_RATE * DURATION
 
-def save_mfcc(dataset_path, json_path, num_mfcc=13, n_fft=2048, hop_length=512, num_segments=5): 
+def save_mfcc(dataset_path, json_path, n_mfcc=13, n_fft=2048, hop_length=512, num_segments=5): 
 
     # dictionary to store data - mapping we need to store the mapping of the class labels to integers
     data = {
@@ -21,6 +21,12 @@ def save_mfcc(dataset_path, json_path, num_mfcc=13, n_fft=2048, hop_length=512, 
 
     num_samples_per_segment = int(SAMPLES_PER_TRACK / num_segments) 
     expected_num_mfcc_vectors_per_segment = math.ceil(num_samples_per_segment / hop_length) 
+
+    print("Dataset path:", dataset_path)
+    print("JSON path:", json_path)
+    print("Number of segments:", num_segments)
+    print("Expected number of MFCC vectors per segment:", expected_num_mfcc_vectors_per_segment)
+
     # loop through all the genres - enumarate returns the index and the genre
     for i, (dirpath, dirnames, filenames) in enumerate(os.walk(dataset_path)): # dirpath: path to the current directory, dirnames: list of directories in the current directory, filenames: list of files in the current directory
         
@@ -46,10 +52,10 @@ def save_mfcc(dataset_path, json_path, num_mfcc=13, n_fft=2048, hop_length=512, 
                             finish_sample = start_sample + num_samples_per_segment # s=0 -> num_samples_per_segment
                            
                             # training data must always be of the same size
-                            mfcc = librosa.feature.mfcc(signal[start_sample:finish_sample], # analysing a slice of the signal in current segment
+                            mfcc = librosa.feature.mfcc(y=signal[start_sample:finish_sample], # analysing a slice of the signal in current segment
                                                         sr=sr,
                                                         n_fft=n_fft,
-                                                        num_mfcc=num_mfcc,
+                                                        n_mfcc=n_mfcc,
                                                         hop_length=hop_length
                                                         )
                             mfcc = mfcc.T
